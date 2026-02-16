@@ -1,0 +1,11 @@
+ID,City,Price,Sqft,Bedrooms,Bathrooms,Year_Built
+1,New York,850000,1200,3,2,2005
+2,New York,900000,1250,3,2,2010
+3,Los Angeles,720000,1100,2,2,2000
+4,Chicago,430000,900,2,1,1995
+5,Chicago,450000,950,2,1,1998
+6,Houston,390000,850,2,1,2003
+7,Phoenix,450000,1000,3,2,2007
+8,Phoenix,470000,1020,3,2,2008
+9,Dallas,400000,880,2,1,2001
+10,Dallas,420000,890,2,1,2004
