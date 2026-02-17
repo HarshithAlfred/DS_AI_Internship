@@ -1,0 +1,31 @@
+Student_ID,Name,Math_Score,Science_Score,English_Score,Attendance_Percentage,Study_Hours_per_Week,Parent_Education_Level,Final_Result
+S001,Aarav Sharma,78,85,74,92,12,Bachelor,Pass
+S002,Diya Patel,56,61,NULL,81,8,High School,Pass
+S003,Rohan Verma,34,45,40,65,5,High School,Fail
+S004,Ananya Singh,88,90,91,95,15,Master,Pass
+S005,Vihaan Gupta,49,NULL,47,72,6,Diploma,Fail
+S006,Isha Mehta,92,89,94,97,18,PhD,Pass
+S007,Aditya Nair,NULL,73,70,85,10,Bachelor,Pass
+S008,Kavya Reddy,39,42,38,60,4,High School,Fail
+S009,Arjun Rao,81,77,NULL,88,14,Master,Pass
+S010,Saanvi Iyer,58,64,62,83,9,Bachelor,Pass
+S011,Raj Malhotra,45,48,50,70,6,High School,Fail
+S012,Meera Joshi,84,NULL,88,93,16,Master,Pass
+S013,Kabir Khan,73,69,75,87,11,Bachelor,Pass
+S014,Anika Das,90,92,89,96,17,PhD,Pass
+S015,Yash Thakur,52,55,58,78,7,Diploma,Pass
+S016,Prisha Kapoor,36,40,NULL,62,5,High School,Fail
+S017,Aryan Choudhary,79,82,76,91,13,Bachelor,Pass
+S018,Riya Sen,61,66,64,84,9,Master,Pass
+S019,Dev Mishra,NULL,43,45,68,6,High School,Fail
+S020,Myra Bansal,95,94,96,98,20,PhD,Pass
+S021,Siddharth Jain,68,72,70,86,10,Bachelor,Pass
+S022,Tara Kulkarni,41,46,44,67,5,High School,Fail
+S023,Nikhil Arora,74,NULL,72,89,12,Master,Pass
+S024,Sara Thomas,59,63,60,82,8,Bachelor,Pass
+S025,Om Prakash,33,38,36,58,3,High School,Fail
+S026,Aanya Bhatt,87,85,90,94,16,Master,Pass
+S027,Rudra Sinha,54,57,NULL,76,7,Diploma,Pass
+S028,Neha Pillai,91,93,95,97,19,PhD,Pass
+S029,Karan Bedi,62,NULL,61,84,9,Bachelor,Pass
+S030,Simran Kaur,48,50,46,71,6,High School,Fail
