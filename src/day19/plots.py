@@ -1,0 +1,7 @@
+import matplotlib.pyplot as plt
+x=[2,4,6,8,10]
+y=[3,6,9,12,15]
+
+plt.figure()
+plt.plot(x,y)
+plt.show()
