@@ -1,0 +1,44 @@
+===============================================================
+DATASET CHARACTERISTICS REPORT
+===============================================================
+
+Total Rows: 505
+Total Columns: 14
+
+Column Types & Missing Values:
+------------------------------
+CustomerID           | int64      | Missing: 0 (0.0%)
+Age                  | int64      | Missing: 0 (0.0%)
+Gender               | str        | Missing: 0 (0.0%)
+City                 | str        | Missing: 0 (0.0%)
+Education            | str        | Missing: 25 (5.0%)
+MaritalStatus        | str        | Missing: 0 (0.0%)
+AnnualIncome         | float64    | Missing: 26 (5.1%)
+SpendingScore        | int64      | Missing: 0 (0.0%)
+YearsEmployed        | int64      | Missing: 0 (0.0%)
+PurchaseFrequency    | int64      | Missing: 0 (0.0%)
+OnlineVisitsPerMonth | int64      | Missing: 0 (0.0%)
+ReturnedItems        | int64      | Missing: 0 (0.0%)
+PreferredDevice      | str        | Missing: 0 (0.0%)
+LastPurchaseAmount   | int64      | Missing: 0 (0.0%)
+
+Basic Statistics for Numerical Columns:
+------------------------------
+                      count          mean           std     min      25%      50%      75%       max
+CustomerID            505.0   1250.205941    144.530689  1001.0   1125.0   1250.0   1375.0    1500.0
+Age                   505.0     37.154455      9.724575    21.0     28.0     37.0     46.0      54.0
+AnnualIncome          479.0  75613.359081  39070.715016   383.0  58641.0  72297.0  85228.5  419963.0
+SpendingScore         505.0     46.443564     17.082703     5.0     35.0     47.0     58.0      95.0
+YearsEmployed         505.0     13.968317      9.567585     1.0      5.0     14.0     22.0      34.0
+PurchaseFrequency     505.0     11.938614      6.954942     1.0      6.0     12.0     18.0      24.0
+OnlineVisitsPerMonth  505.0     16.269307      8.122008     3.0      9.0     17.0     24.0      29.0
+ReturnedItems         505.0      1.916832      1.396216     0.0      1.0      2.0      3.0       4.0
+LastPurchaseAmount    505.0   2814.182178   1266.561798   518.0   1757.0   2755.0   3961.0    4996.0
+
+Duplicate Rows Check:
+------------------------------
+Number of duplicate rows found: 5
+
+===============================================================
+Report generated successfully.
+===============================================================
