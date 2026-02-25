@@ -1,0 +1,18 @@
+Definitions
+
+1. Supervised Learning
+Definition: Learning from data that has labels (answers). The model predicts an output based on input features.
+Example: Predicting house prices based on size, location, and amenities.
+
+2. Unsupervised Learning
+Definition: Learning from data without labels. The model identifies patterns, structures, or clusters in the data.
+Example: Grouping customers into segments based on purchase behavior.
+3. Reinforcement Learning
+Definition: Learning by taking actions in an environment and receiving rewards or penalties. The model learns an optimal strategy over time.
+Example: Training a robot to walk by rewarding it for staying upright and moving forward.
+
+Comparison Table: Real-World Examples
+ML Type	                         Real-World Example 1	                    Real-World Example 2
+Supervised Learning     	   Spam Detection in Email	               Credit Card Fraud Prediction
+Unsupervised Learning	        Customer Segmentation	           Market Basket Analysis (frequent itemsets)
+Reinforcement Learning    	  Self-driving Car Navigation	          Game AI (e.g., Chess or Go agents)
