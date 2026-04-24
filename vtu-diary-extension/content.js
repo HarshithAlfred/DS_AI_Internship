@@ -1,0 +1,1 @@
+console.log("VTU Diary AutoFill Loaded");

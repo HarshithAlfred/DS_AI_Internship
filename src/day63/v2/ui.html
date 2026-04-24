@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IPL Auction Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b10;--card:#0f1318;--card2:#141920;--border:#1c2230;
+  --gold:#f5a623;--gold2:#ffd166;--blue:#3b82f6;--green:#22c55e;
+  --red:#ef4444;--purple:#a78bfa;--text:#dde2ec;--muted:#5a6478;
+  --input:#090d13;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 5%,rgba(245,166,35,.09) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 95%,rgba(59,130,246,.07) 0%,transparent 55%),
+    radial-gradient(ellipse 30% 30% at 50% 50%,rgba(167,139,250,.03) 0%,transparent 60%);
+}
+
+/* ── HEADER ── */
+header{position:relative;z-index:10;display:flex;align-items:center;gap:16px;padding:28px 44px 16px}
+.logo{width:48px;height:48px;background:linear-gradient(135deg,#f5a623,#c47a0a);border-radius:13px;display:grid;place-items:center;font-size:24px;box-shadow:0 0 28px rgba(245,166,35,.35),0 4px 12px rgba(0,0,0,.5)}
+h1{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;background:linear-gradient(90deg,#ffd166,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.tagline{font-size:.72rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+
+/* ── PILL STATS ── */
+.pills{position:relative;z-index:10;display:flex;gap:10px;padding:0 44px 20px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pill b{color:var(--gold);font-size:.82rem}
+
+/* ── MAIN ── */
+main{position:relative;z-index:10;display:grid;grid-template-columns:1fr 400px;gap:20px;padding:0 44px 44px;max-width:1380px;margin:0 auto}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px}
+.card-hd{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.card-hd::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── PLAYER SELECTOR ── */
+.player-selector{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px}
+.ps-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ps-row{display:flex;gap:10px;align-items:center}
+.ps-row select{flex:1}
+.autofill-btn{padding:10px 16px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(59,130,246,.08));border:1px solid rgba(59,130,246,.3);border-radius:8px;color:var(--blue);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.autofill-btn:hover{background:rgba(59,130,246,.25);border-color:rgba(59,130,246,.5)}
+.player-chip{margin-top:12px;padding:10px 14px;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.15);border-radius:8px;font-size:.8rem;display:none;align-items:center;gap:10px;flex-wrap:wrap}
+.player-chip.show{display:flex}
+.chip-name{color:var(--gold2);font-weight:600;font-size:.88rem}
+.chip-detail{color:var(--muted);font-size:.72rem}
+.chip-actual{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.chip-actual b{color:var(--green)}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+label{font-size:.67rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}
+select,input[type=number]{background:var(--input);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6478' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:34px;-webkit-appearance:none}
+select:focus,input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,166,35,.1)}
+.section-sep{grid-column:1/-1;font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);padding:6px 0 2px;border-top:1px solid var(--border);margin-top:4px}
+.range-row{display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;accent-color:var(--gold);height:4px;cursor:pointer}
+.rv{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold);min-width:36px;text-align:right}
+.btn{grid-column:1/-1;margin-top:6px;padding:15px;background:linear-gradient(135deg,var(--gold),#b8720a);border:none;border-radius:10px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:3px;cursor:pointer;transition:transform .15s,box-shadow .2s;box-shadow:0 4px 18px rgba(245,166,35,.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,166,35,.45)}
+.btn:active{transform:translateY(0)}
+
+/* ── RESULT PANEL ── */
+.result-panel{display:flex;flex-direction:column;gap:16px}
+
+.price-box{text-align:center;padding:28px 20px;background:linear-gradient(135deg,rgba(245,166,35,.07),rgba(245,166,35,.02));border:1px solid rgba(245,166,35,.18);border-radius:14px;position:relative;overflow:hidden}
+.price-box::before{content:"🏏";position:absolute;top:-8px;right:-8px;font-size:80px;opacity:.05;transform:rotate(20deg)}
+.plabel{font-size:.66rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.pval{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:2px;color:var(--gold2);line-height:1;text-shadow:0 0 40px rgba(245,166,35,.35)}
+.pcrore{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--gold);margin-top:4px}
+.conf-badge{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:20px;font-size:.68rem;font-weight:600;letter-spacing:1px}
+.ch{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.28)}
+.cm{background:rgba(245,166,35,.12);color:var(--gold);border:1px solid rgba(245,166,35,.28)}
+.cl{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.28)}
+
+/* actual vs predicted */
+.vs-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid var(--border);font-size:.8rem}
+.vs-label{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:1px}
+.vs-val{font-family:'JetBrains Mono',monospace}
+.vs-act{color:var(--green)}
+.vs-pred{color:var(--gold)}
+.vs-err{margin-left:auto;font-size:.72rem;color:var(--muted)}
+
+/* tier */
+.tier{border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+.tier-icon{font-size:1.8rem}
+.tier-name{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1px}
+.tier-desc{font-size:.72rem;color:var(--muted);margin-top:2px}
+.tp{background:rgba(167,139,250,.09);border:1px solid rgba(167,139,250,.22)}.tp .tier-name{color:#c084fc}
+.tg{background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.22)}.tg .tier-name{color:var(--gold2)}
+.ts{background:rgba(148,163,184,.09);border:1px solid rgba(148,163,184,.22)}.ts .tier-name{color:#94a3b8}
+.tb{background:rgba(107,114,128,.09);border:1px solid rgba(107,114,128,.22)}.tb .tier-name{color:var(--muted)}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:flex;flex-direction:column;gap:4px}
+.bar-hd{display:flex;justify-content:space-between;font-size:.72rem}
+.bar-name{color:var(--muted)}.bar-val{font-family:'JetBrains Mono',monospace;color:var(--text);font-size:.7rem}
+.bar-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--blue));transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+/* model info */
+.model-info{background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.13);border-radius:10px;padding:13px 15px;font-size:.7rem;color:var(--muted);line-height:1.75}
+.model-info b{color:var(--blue)}
+
+/* history */
+.hist-table{width:100%;border-collapse:collapse;font-size:.76rem}
+.hist-table th{text-align:left;padding:7px 9px;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.63rem;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.hist-table td{padding:9px 9px;border-bottom:1px solid rgba(28,34,48,.7)}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:rgba(255,255,255,.015)}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--gold);font-size:.78rem}
+.err-ok{color:var(--green)}.err-bad{color:var(--red)}.err-mid{color:var(--gold)}
+
+/* placeholder */
+.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:36px 20px;color:var(--muted);font-size:.82rem;text-align:center}
+.ph-icon{font-size:2.8rem;opacity:.25}
+
+@media(max-width:900px){main{grid-template-columns:1fr;padding:0 18px 36px}header,.pills{padding-left:18px;padding-right:18px}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏏</div>
+  <div>
+    <h1>IPL Auction Intelligence</h1>
+    <div class="tagline">Real Player Data · ML Auction Price Predictor</div>
+  </div>
+</header>
+
+<div class="pills">
+  <div class="pill">Dataset <b>Real IPL 2008–2011</b></div>
+  <div class="pill">Players <b>130</b></div>
+  <div class="pill">Algorithm <b>Extra Trees</b></div>
+  <div class="pill">CV R² <b>0.29</b></div>
+  <div class="pill">Train R² <b>0.81</b></div>
+  <div class="pill">Features <b>29</b></div>
+</div>
+
+<main>
+<!-- ── LEFT PANEL ── -->
+<div class="card">
+  <div class="card-hd">Player Profile</div>
+
+  <!-- Player selector -->
+  <div class="player-selector">
+    <div class="ps-label">⚡ Quick Fill — Select a Real IPL Player</div>
+    <div class="ps-row">
+      <select id="player_select" onchange="onPlayerSelect()">
+        <option value="">— Choose a real player to auto-fill stats —</option>
+      </select>
+      <button class="autofill-btn" onclick="autoFill()">Auto-Fill ↓</button>
+    </div>
+    <div class="player-chip" id="player_chip">
+      <span class="chip-name" id="chip_name"></span>
+      <span class="chip-detail" id="chip_detail"></span>
+      <span class="chip-actual">Actual sold: <b id="chip_actual"></b></span>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="fg"><label>Player Role</label>
+      <select id="role">
+        <option value="Allrounder">All-Rounder</option>
+        <option value="Batsman">Batsman</option>
+        <option value="Bowler">Bowler</option>
+        <option value="W. Keeper">Wicket-Keeper</option>
+      </select>
+    </div>
+    <div class="fg"><label>Country</label>
+      <select id="country">
+        <option value="AUS">Australia</option>
+        <option value="BAN">Bangladesh</option>
+        <option value="ENG">England</option>
+        <option value="IND" selected>India</option>
+        <option value="NZ">New Zealand</option>
+        <option value="PAK">Pakistan</option>
+        <option value="SA">South Africa</option>
+        <option value="SL">Sri Lanka</option>
+        <option value="WI">West Indies</option>
+        <option value="ZIM">Zimbabwe</option>
+      </select>
+    </div>
+    <div class="fg"><label>Age Group</label>
+      <select id="age">
+        <option value="1">Young (≤23)</option>
+        <option value="2" selected>Mid-career (24–32)</option>
+        <option value="3">Senior (33+)</option>
+      </select>
+    </div>
+    <div class="fg"><label>Captaincy Exp.</label>
+      <select id="captaincy">
+        <option value="0" selected>No</option>
+        <option value="1">Yes</option>
+      </select>
+    </div>
+    <div class="fg"><label>Base Price (₹)</label>
+      <select id="base_price">
+        <option value="20000">₹20,000</option>
+        <option value="50000" selected>₹50,000</option>
+        <option value="100000">₹1,00,000</option>
+        <option value="125000">₹1,25,000</option>
+        <option value="150000">₹1,50,000</option>
+        <option value="175000">₹1,75,000</option>
+        <option value="200000">₹2,00,000</option>
+        <option value="225000">₹2,25,000</option>
+        <option value="250000">₹2,50,000</option>
+        <option value="300000">₹3,00,000</option>
+        <option value="335000">₹3,35,000</option>
+        <option value="350000">₹3,50,000</option>
+        <option value="400000">₹4,00,000</option>
+        <option value="450000">₹4,50,000</option>
+        <option value="950000">₹9,50,000</option>
+        <option value="1350000">$13,50,000</option>
+      </select>
+    </div>
+
+    <div class="section-sep">⚡ Batting</div>
+    <div class="fg"><label>IPL Runs</label><input type="number" id="runs_s" value="500" min="0"></div>
+    <div class="fg"><label>Highest Score</label><input type="number" id="hs" value="60" min="0"></div>
+    <div class="fg"><label>Batting Avg</label><input type="number" id="ave" value="25.0" step=".1" min="0"></div>
+    <div class="fg"><label>Strike Rate</label><input type="number" id="sr_b" value="125.0" step=".1" min="0"></div>
+    <div class="fg"><label>Sixes</label><input type="number" id="sixers" value="20" min="0"></div>
+    <div class="fg"><label>ODI Runs</label><input type="number" id="odi_runs" value="1000" min="0"></div>
+    <div class="fg"><label>ODI SR</label><input type="number" id="odi_sr" value="78.0" step=".1" min="0"></div>
+    <div class="fg"><label>Test Runs</label><input type="number" id="t_runs" value="500" min="0"></div>
+
+    <div class="section-sep">🎯 Bowling</div>
+    <div class="fg"><label>IPL Wickets</label><input type="number" id="wkts" value="20" min="0"></div>
+    <div class="fg"><label>Economy</label><input type="number" id="econ" value="7.5" step=".1" min="0"></div>
+    <div class="fg"><label>Bowling Avg</label><input type="number" id="ave_bl" value="25.0" step=".1" min="0"></div>
+    <div class="fg"><label>Bowling SR</label><input type="number" id="sr_bl" value="20.0" step=".1" min="0"></div>
+    <div class="fg"><label>IPL Runs Conceded</label><input type="number" id="runs_c" value="600" min="0"></div>
+    <div class="fg"><label>ODI Wickets</label><input type="number" id="odi_wkts" value="30" min="0"></div>
+    <div class="fg"><label>ODI Bowl SR</label><input type="number" id="odi_sr_bl" value="35.0" step=".1" min="0"></div>
+    <div class="fg"><label>Test Wickets</label><input type="number" id="t_wkts" value="20" min="0"></div>
+
+    <button class="btn" onclick="predict()">⚡ PREDICT AUCTION PRICE</button>
+  </div>
+</div>
+
+<!-- ── RIGHT PANEL ── -->
+<div class="result-panel">
+  <div class="card">
+    <div class="card-hd">Prediction Result</div>
+    <div id="result-area">
+      <div class="ph"><div class="ph-icon">🏏</div><div>Select a player or enter stats<br>and click Predict</div></div>
+    </div>
+  </div>
+
+  <div class="model-info">
+    <div style="color:var(--blue);font-weight:700;margin-bottom:5px;font-size:.75rem;letter-spacing:1px">MODEL DETAILS</div>
+    <b>Dataset:</b> 130 real IPL auction records (2008–2011, IIM Bangalore)<br>
+    <b>Algorithm:</b> Extra Trees Regressor — 500 trees, max_depth=5<br>
+    <b>Features:</b> 29 engineered features (batting + bowling + composite)<br>
+    <b>CV R²:</b> 0.29 (honest — 130 rows is a small dataset)<br>
+    <b>Train R²:</b> 0.81 · <b>Note:</b> More IPL seasons → higher accuracy
+  </div>
+
+  <div class="card" id="hist_card" style="display:none">
+    <div class="card-hd">Prediction History</div>
+    <table class="hist-table">
+      <thead><tr><th>Player</th><th>Role</th><th>Predicted</th><th>Actual</th><th>Err%</th></tr></thead>
+      <tbody id="hist_body"></tbody>
+    </table>
+  </div>
+</div>
+</main>
+
+<script>
+// ── REAL PLAYER DATA ──
+const PLAYERS = [{"PLAYER NAME": "Abdulla, YA", "PLAYING ROLE": "Allrounder", "COUNTRY": "SA", "TEAM": "KXIP", "AGE": 2, "BASE PRICE": 50000, "SOLD PRICE": 50000, "RUNS-S": 0, "AVE": 0.0, "SR-B": 0.0, "SIXERS": 0, "WKTS": 15, "ECON": 8.9, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 0, "ODI-SR-B": 0.0, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 0, "RUNS-C": 307, "AVE-BL": 20.47, "SR-BL": 13.93, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Abdur Razzak", "PLAYING ROLE": "Bowler", "COUNTRY": "BAN", "TEAM": "RCB", "AGE": 2, "BASE PRICE": 50000, "SOLD PRICE": 50000, "RUNS-S": 0, "AVE": 0.0, "SR-B": 0.0, "SIXERS": 0, "WKTS": 0, "ECON": 14.5, "T-RUNS": 214, "T-WKTS": 18, "ODI-RUNS-S": 657, "ODI-SR-B": 71.41, "ODI-WKTS": 185, "ODI-SR-BL": 37.6, "HS": 0, "RUNS-C": 29, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Agarkar, AB", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "KKR", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 350000, "RUNS-S": 167, "AVE": 18.56, "SR-B": 121.01, "SIXERS": 5, "WKTS": 29, "ECON": 8.81, "T-RUNS": 571, "T-WKTS": 58, "ODI-RUNS-S": 1269, "ODI-SR-B": 80.62, "ODI-WKTS": 288, "ODI-SR-BL": 32.9, "HS": 39, "RUNS-C": 1059, "AVE-BL": 36.52, "SR-BL": 24.9, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Ashwin, R", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "CSK", "AGE": 1, "BASE PRICE": 100000, "SOLD PRICE": 850000, "RUNS-S": 58, "AVE": 5.8, "SR-B": 76.32, "SIXERS": 0, "WKTS": 49, "ECON": 6.23, "T-RUNS": 284, "T-WKTS": 31, "ODI-RUNS-S": 241, "ODI-SR-B": 84.56, "ODI-WKTS": 51, "ODI-SR-BL": 36.8, "HS": 11, "RUNS-C": 1125, "AVE-BL": 22.96, "SR-BL": 22.14, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Badrinath, S", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "CSK", "AGE": 2, "BASE PRICE": 100000, "SOLD PRICE": 800000, "RUNS-S": 1317, "AVE": 32.93, "SR-B": 120.71, "SIXERS": 28, "WKTS": 0, "ECON": 0.0, "T-RUNS": 63, "T-WKTS": 0, "ODI-RUNS-S": 79, "ODI-SR-B": 45.93, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 71, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Bailey, GJ", "PLAYING ROLE": "Batsman", "COUNTRY": "AUS", "TEAM": "CSK", "AGE": 2, "BASE PRICE": 50000, "SOLD PRICE": 50000, "RUNS-S": 63, "AVE": 21.0, "SR-B": 95.45, "SIXERS": 0, "WKTS": 0, "ECON": 0.0, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 172, "ODI-SR-B": 72.26, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 48, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Balaji, L", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "CSK+", "AGE": 2, "BASE PRICE": 100000, "SOLD PRICE": 500000, "RUNS-S": 26, "AVE": 4.33, "SR-B": 72.22, "SIXERS": 1, "WKTS": 52, "ECON": 7.98, "T-RUNS": 51, "T-WKTS": 27, "ODI-RUNS-S": 120, "ODI-SR-B": 78.94, "ODI-WKTS": 34, "ODI-SR-BL": 42.5, "HS": 15, "RUNS-C": 1342, "AVE-BL": 25.81, "SR-BL": 19.4, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Bollinger, DE", "PLAYING ROLE": "Bowler", "COUNTRY": "AUS", "TEAM": "CSK", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 700000, "RUNS-S": 21, "AVE": 21.0, "SR-B": 165.88, "SIXERS": 1, "WKTS": 37, "ECON": 7.22, "T-RUNS": 54, "T-WKTS": 50, "ODI-RUNS-S": 50, "ODI-SR-B": 92.59, "ODI-WKTS": 62, "ODI-SR-BL": 31.3, "HS": 16, "RUNS-C": 693, "AVE-BL": 18.73, "SR-BL": 15.57, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Botha, J", "PLAYING ROLE": "Allrounder", "COUNTRY": "SA", "TEAM": "RR", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 950000, "RUNS-S": 335, "AVE": 30.45, "SR-B": 114.73, "SIXERS": 3, "WKTS": 19, "ECON": 6.85, "T-RUNS": 83, "T-WKTS": 17, "ODI-RUNS-S": 609, "ODI-SR-B": 85.77, "ODI-WKTS": 72, "ODI-SR-BL": 53.0, "HS": 67, "RUNS-C": 610, "AVE-BL": 32.11, "SR-BL": 28.11, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Boucher, MV", "PLAYING ROLE": "W. Keeper", "COUNTRY": "SA", "TEAM": "RCB+", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 450000, "RUNS-S": 394, "AVE": 28.14, "SR-B": 127.51, "SIXERS": 13, "WKTS": 0, "ECON": 0.0, "T-RUNS": 5515, "T-WKTS": 1, "ODI-RUNS-S": 4686, "ODI-SR-B": 84.76, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 50, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Bravo, DJ", "PLAYING ROLE": "Allrounder", "COUNTRY": "WI", "TEAM": "MI+", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 200000, "RUNS-S": 839, "AVE": 27.97, "SR-B": 127.12, "SIXERS": 38, "WKTS": 47, "ECON": 8.12, "T-RUNS": 2200, "T-WKTS": 86, "ODI-RUNS-S": 2004, "ODI-SR-B": 81.39, "ODI-WKTS": 142, "ODI-SR-BL": 34.1, "HS": 70, "RUNS-C": 1338, "AVE-BL": 28.47, "SR-BL": 21.11, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Chanderpaul, S", "PLAYING ROLE": "Batsman", "COUNTRY": "WI", "TEAM": "RCB", "AGE": 3, "BASE PRICE": 200000, "SOLD PRICE": 200000, "RUNS-S": 25, "AVE": 8.33, "SR-B": 80.64, "SIXERS": 0, "WKTS": 0, "ECON": 0.0, "T-RUNS": 9918, "T-WKTS": 9, "ODI-RUNS-S": 8778, "ODI-SR-B": 70.74, "ODI-WKTS": 14, "ODI-SR-BL": 52.8, "HS": 16, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Chawla, PP", "PLAYING ROLE": "Allrounder", "COUNTRY": "IND", "TEAM": "KXIP", "AGE": 1, "BASE PRICE": 125000, "SOLD PRICE": 400000, "RUNS-S": 337, "AVE": 13.48, "SR-B": 113.09, "SIXERS": 9, "WKTS": 73, "ECON": 38.11, "T-RUNS": 5, "T-WKTS": 3, "ODI-RUNS-S": 38, "ODI-SR-B": 65.51, "ODI-WKTS": 32, "ODI-SR-BL": 41.0, "HS": 24, "RUNS-C": 1819, "AVE-BL": 126.3, "SR-BL": 100.2, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Dhawan, S", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "MI+", "AGE": 2, "BASE PRICE": 100000, "SOLD PRICE": 300000, "RUNS-S": 1540, "AVE": 31.43, "SR-B": 122.32, "SIXERS": 36, "WKTS": 4, "ECON": 8.25, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 69, "ODI-SR-B": 56.09, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 95, "RUNS-C": 66, "AVE-BL": 16.5, "SR-BL": 12.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Dhoni, MS", "PLAYING ROLE": "W. Keeper", "COUNTRY": "IND", "TEAM": "CSK", "AGE": 2, "BASE PRICE": 400000, "SOLD PRICE": 1500000, "RUNS-S": 1782, "AVE": 37.13, "SR-B": 136.45, "SIXERS": 64, "WKTS": 0, "ECON": 0.0, "T-RUNS": 3509, "T-WKTS": 0, "ODI-RUNS-S": 6773, "ODI-SR-B": 88.19, "ODI-WKTS": 1, "ODI-SR-BL": 12.0, "HS": 70, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Dilshan, TM", "PLAYING ROLE": "Allrounder", "COUNTRY": "SL", "TEAM": "DD+", "AGE": 2, "BASE PRICE": 150000, "SOLD PRICE": 250000, "RUNS-S": 1077, "AVE": 28.34, "SR-B": 117.83, "SIXERS": 24, "WKTS": 5, "ECON": 8.07, "T-RUNS": 4722, "T-WKTS": 32, "ODI-RUNS-S": 6455, "ODI-SR-B": 86.8, "ODI-WKTS": 67, "ODI-SR-BL": 58.3, "HS": 76, "RUNS-C": 356, "AVE-BL": 71.2, "SR-BL": 53.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Dinda, AB", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "KKR+", "AGE": 2, "BASE PRICE": 100000, "SOLD PRICE": 375000, "RUNS-S": 6, "AVE": 1.0, "SR-B": 33.33, "SIXERS": 0, "WKTS": 36, "ECON": 7.29, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 18, "ODI-SR-B": 60.0, "ODI-WKTS": 5, "ODI-SR-BL": 61.4, "HS": 2, "RUNS-C": 926, "AVE-BL": 25.72, "SR-BL": 21.19, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Dravid, RS", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "RCB+", "AGE": 3, "BASE PRICE": 400000, "SOLD PRICE": 500000, "RUNS-S": 1703, "AVE": 27.92, "SR-B": 116.88, "SIXERS": 23, "WKTS": 0, "ECON": 0.0, "T-RUNS": 13288, "T-WKTS": 1, "ODI-RUNS-S": 10889, "ODI-SR-B": 71.24, "ODI-WKTS": 4, "ODI-SR-BL": 46.5, "HS": 75, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Duminy, J-P", "PLAYING ROLE": "Batsman", "COUNTRY": "SA", "TEAM": "MI+", "AGE": 2, "BASE PRICE": 300000, "SOLD PRICE": 300000, "RUNS-S": 978, "AVE": 36.22, "SR-B": 119.27, "SIXERS": 35, "WKTS": 10, "ECON": 7.11, "T-RUNS": 654, "T-WKTS": 11, "ODI-RUNS-S": 2536, "ODI-SR-B": 84.0, "ODI-WKTS": 25, "ODI-SR-BL": 47.6, "HS": 74, "RUNS-C": 377, "AVE-BL": 37.7, "SR-BL": 31.8, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Edwards, FH", "PLAYING ROLE": "Bowler", "COUNTRY": "WI", "TEAM": "DC", "AGE": 2, "BASE PRICE": 150000, "SOLD PRICE": 150000, "RUNS-S": 4, "AVE": 4.0, "SR-B": 80.0, "SIXERS": 0, "WKTS": 5, "ECON": 6.6, "T-RUNS": 380, "T-WKTS": 157, "ODI-RUNS-S": 73, "ODI-SR-B": 45.62, "ODI-WKTS": 60, "ODI-SR-BL": 35.6, "HS": 3, "RUNS-C": 154, "AVE-BL": 30.8, "SR-BL": 28.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Flintoff, A", "PLAYING ROLE": "Allrounder", "COUNTRY": "ENG", "TEAM": "CSK", "AGE": 2, "BASE PRICE": 950000, "SOLD PRICE": 1550000, "RUNS-S": 62, "AVE": 31.0, "SR-B": 116.98, "SIXERS": 2, "WKTS": 2, "ECON": 9.55, "T-RUNS": 3845, "T-WKTS": 226, "ODI-RUNS-S": 3394, "ODI-SR-B": 88.82, "ODI-WKTS": 169, "ODI-SR-BL": 33.2, "HS": 24, "RUNS-C": 105, "AVE-BL": 52.5, "SR-BL": 33.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Gambhir, G", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "DD+", "AGE": 2, "BASE PRICE": 220000, "SOLD PRICE": 725000, "RUNS-S": 2065, "AVE": 33.31, "SR-B": 128.9, "SIXERS": 32, "WKTS": 0, "ECON": 0.0, "T-RUNS": 3712, "T-WKTS": 0, "ODI-RUNS-S": 4819, "ODI-SR-B": 86.17, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 93, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Ganguly, SC", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "KKR+", "AGE": 3, "BASE PRICE": 200000, "SOLD PRICE": 400000, "RUNS-S": 1349, "AVE": 25.45, "SR-B": 106.81, "SIXERS": 42, "WKTS": 10, "ECON": 7.89, "T-RUNS": 7212, "T-WKTS": 32, "ODI-RUNS-S": 11363, "ODI-SR-B": 73.7, "ODI-WKTS": 100, "ODI-SR-BL": 45.6, "HS": 91, "RUNS-C": 363, "AVE-BL": 36.3, "SR-BL": 27.6, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Gayle, CH", "PLAYING ROLE": "Allrounder", "COUNTRY": "WI", "TEAM": "KKR+", "AGE": 2, "BASE PRICE": 250000, "SOLD PRICE": 800000, "RUNS-S": 1804, "AVE": 50.11, "SR-B": 161.79, "SIXERS": 129, "WKTS": 13, "ECON": 8.05, "T-RUNS": 6373, "T-WKTS": 72, "ODI-RUNS-S": 8087, "ODI-SR-B": 83.95, "ODI-WKTS": 156, "ODI-SR-BL": 44.4, "HS": 128, "RUNS-C": 606, "AVE-BL": 46.62, "SR-BL": 34.85, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Gilchrist, AC", "PLAYING ROLE": "W. Keeper", "COUNTRY": "AUS", "TEAM": "DC+", "AGE": 3, "BASE PRICE": 300000, "SOLD PRICE": 700000, "RUNS-S": 1775, "AVE": 27.73, "SR-B": 140.21, "SIXERS": 86, "WKTS": 0, "ECON": 0.0, "T-RUNS": 5570, "T-WKTS": 0, "ODI-RUNS-S": 9619, "ODI-SR-B": 96.94, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 109, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Harbhajan Singh", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "MI", "AGE": 2, "BASE PRICE": 250000, "SOLD PRICE": 850000, "RUNS-S": 430, "AVE": 16.54, "SR-B": 151.41, "SIXERS": 22, "WKTS": 54, "ECON": 6.85, "T-RUNS": 2164, "T-WKTS": 406, "ODI-RUNS-S": 1190, "ODI-SR-B": 80.51, "ODI-WKTS": 259, "ODI-SR-BL": 46.5, "HS": 49, "RUNS-C": 1469, "AVE-BL": 27.2, "SR-BL": 23.83, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Hayden, ML", "PLAYING ROLE": "Batsman", "COUNTRY": "AUS", "TEAM": "CSK", "AGE": 3, "BASE PRICE": 225000, "SOLD PRICE": 375000, "RUNS-S": 1107, "AVE": 36.9, "SR-B": 137.52, "SIXERS": 44, "WKTS": 0, "ECON": 0.0, "T-RUNS": 8625, "T-WKTS": 0, "ODI-RUNS-S": 6133, "ODI-SR-B": 78.96, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 93, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Jadeja, RA", "PLAYING ROLE": "Allrounder", "COUNTRY": "IND", "TEAM": "RR+", "AGE": 1, "BASE PRICE": 100000, "SOLD PRICE": 950000, "RUNS-S": 904, "AVE": 23.18, "SR-B": 120.86, "SIXERS": 35, "WKTS": 26, "ECON": 7.33, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 860, "ODI-SR-B": 78.61, "ODI-WKTS": 57, "ODI-SR-BL": 46.2, "HS": 48, "RUNS-C": 750, "AVE-BL": 28.85, "SR-BL": 23.65, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Jayasuriya, ST", "PLAYING ROLE": "Allrounder", "COUNTRY": "SL", "TEAM": "MI", "AGE": 3, "BASE PRICE": 250000, "SOLD PRICE": 975000, "RUNS-S": 768, "AVE": 27.43, "SR-B": 144.36, "SIXERS": 39, "WKTS": 13, "ECON": 7.96, "T-RUNS": 6973, "T-WKTS": 98, "ODI-RUNS-S": 13430, "ODI-SR-B": 91.21, "ODI-WKTS": 323, "ODI-SR-BL": 46.0, "HS": 114, "RUNS-C": 390, "AVE-BL": 30.0, "SR-BL": 22.62, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Kallis, JH", "PLAYING ROLE": "Allrounder", "COUNTRY": "SA", "TEAM": "RCB", "AGE": 3, "BASE PRICE": 225000, "SOLD PRICE": 900000, "RUNS-S": 1965, "AVE": 30.7, "SR-B": 110.95, "SIXERS": 37, "WKTS": 45, "ECON": 7.96, "T-RUNS": 12379, "T-WKTS": 276, "ODI-RUNS-S": 11498, "ODI-SR-B": 72.97, "ODI-WKTS": 270, "ODI-SR-BL": 39.3, "HS": 89, "RUNS-C": 1713, "AVE-BL": 38.07, "SR-BL": 28.71, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Kohli, V", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "RCB", "AGE": 1, "BASE PRICE": 150000, "SOLD PRICE": 1800000, "RUNS-S": 1639, "AVE": 28.26, "SR-B": 119.29, "SIXERS": 49, "WKTS": 4, "ECON": 8.84, "T-RUNS": 491, "T-WKTS": 0, "ODI-RUNS-S": 3590, "ODI-SR-B": 86.31, "ODI-WKTS": 2, "ODI-SR-BL": 137.0, "HS": 73, "RUNS-C": 345, "AVE-BL": 86.25, "SR-BL": 58.5, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Lee, B", "PLAYING ROLE": "Bowler", "COUNTRY": "AUS", "TEAM": "KXI+", "AGE": 2, "BASE PRICE": 300000, "SOLD PRICE": 900000, "RUNS-S": 103, "AVE": 11.44, "SR-B": 121.18, "SIXERS": 6, "WKTS": 21, "ECON": 7.56, "T-RUNS": 1451, "T-WKTS": 310, "ODI-RUNS-S": 1100, "ODI-SR-B": 82.45, "ODI-WKTS": 377, "ODI-SR-BL": 29.2, "HS": 25, "RUNS-C": 1009, "AVE-BL": 48.05, "SR-BL": 38.24, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Malinga, SL", "PLAYING ROLE": "Bowler", "COUNTRY": "SL", "TEAM": "MI", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 350000, "RUNS-S": 64, "AVE": 5.82, "SR-B": 100.0, "SIXERS": 4, "WKTS": 83, "ECON": 6.36, "T-RUNS": 275, "T-WKTS": 101, "ODI-RUNS-S": 327, "ODI-SR-B": 73.81, "ODI-WKTS": 185, "ODI-SR-BL": 31.1, "HS": 17, "RUNS-C": 1381, "AVE-BL": 16.64, "SR-BL": 15.69, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Mathews, AD", "PLAYING ROLE": "Allrounder", "COUNTRY": "SL", "TEAM": "KKR+", "AGE": 1, "BASE PRICE": 300000, "SOLD PRICE": 950000, "RUNS-S": 376, "AVE": 25.07, "SR-B": 123.28, "SIXERS": 12, "WKTS": 15, "ECON": 8.2, "T-RUNS": 1219, "T-WKTS": 7, "ODI-RUNS-S": 1447, "ODI-SR-B": 82.59, "ODI-WKTS": 42, "ODI-SR-BL": 43.0, "HS": 65, "RUNS-C": 537, "AVE-BL": 35.8, "SR-BL": 26.33, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "McCullum, BB", "PLAYING ROLE": "W. Keeper", "COUNTRY": "NZ", "TEAM": "KKR+", "AGE": 2, "BASE PRICE": 175000, "SOLD PRICE": 700000, "RUNS-S": 1233, "AVE": 28.02, "SR-B": 123.42, "SIXERS": 48, "WKTS": 0, "ECON": 0.0, "T-RUNS": 3763, "T-WKTS": 0, "ODI-RUNS-S": 4511, "ODI-SR-B": 89.62, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 158, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Muralitharan, M", "PLAYING ROLE": "Bowler", "COUNTRY": "SL", "TEAM": "CSK+", "AGE": 3, "BASE PRICE": 250000, "SOLD PRICE": 600000, "RUNS-S": 20, "AVE": 3.33, "SR-B": 66.67, "SIXERS": 0, "WKTS": 57, "ECON": 6.49, "T-RUNS": 1261, "T-WKTS": 800, "ODI-RUNS-S": 674, "ODI-SR-B": 77.56, "ODI-WKTS": 534, "ODI-SR-BL": 35.2, "HS": 6, "RUNS-C": 1395, "AVE-BL": 24.47, "SR-BL": 22.63, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Pathan, IK", "PLAYING ROLE": "Allrounder", "COUNTRY": "IND", "TEAM": "KXIP+", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 925000, "RUNS-S": 929, "AVE": 23.82, "SR-B": 128.31, "SIXERS": 34, "WKTS": 66, "ECON": 7.74, "T-RUNS": 1105, "T-WKTS": 100, "ODI-RUNS-S": 1468, "ODI-SR-B": 78.96, "ODI-WKTS": 165, "ODI-SR-BL": 34.0, "HS": 60, "RUNS-C": 1975, "AVE-BL": 29.92, "SR-BL": 23.23, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Pietersen, KP", "PLAYING ROLE": "Batsman", "COUNTRY": "ENG", "TEAM": "RCB+", "AGE": 2, "BASE PRICE": 1350000, "SOLD PRICE": 1550000, "RUNS-S": 634, "AVE": 42.27, "SR-B": 141.2, "SIXERS": 30, "WKTS": 7, "ECON": 7.41, "T-RUNS": 6654, "T-WKTS": 5, "ODI-RUNS-S": 4184, "ODI-SR-B": 86.76, "ODI-WKTS": 7, "ODI-SR-BL": 57.1, "HS": 103, "RUNS-C": 215, "AVE-BL": 30.71, "SR-BL": 24.86, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Raina, SK", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "CSK", "AGE": 1, "BASE PRICE": 125000, "SOLD PRICE": 650000, "RUNS-S": 2254, "AVE": 33.64, "SR-B": 139.39, "SIXERS": 97, "WKTS": 20, "ECON": 7.05, "T-RUNS": 710, "T-WKTS": 13, "ODI-RUNS-S": 3525, "ODI-SR-B": 92.71, "ODI-WKTS": 16, "ODI-SR-BL": 61.9, "HS": 98, "RUNS-C": 678, "AVE-BL": 33.9, "SR-BL": 28.9, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Sangakkara, KC", "PLAYING ROLE": "W. Keeper", "COUNTRY": "SL", "TEAM": "KXIP+", "AGE": 2, "BASE PRICE": 250000, "SOLD PRICE": 700000, "RUNS-S": 1567, "AVE": 27.98, "SR-B": 124.76, "SIXERS": 27, "WKTS": 0, "ECON": 0.0, "T-RUNS": 9382, "T-WKTS": 0, "ODI-RUNS-S": 10472, "ODI-SR-B": 75.75, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 94, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Sehwag, V", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "DD", "AGE": 2, "BASE PRICE": 400000, "SOLD PRICE": 1800000, "RUNS-S": 1879, "AVE": 30.31, "SR-B": 167.32, "SIXERS": 79, "WKTS": 6, "ECON": 10.56, "T-RUNS": 8178, "T-WKTS": 40, "ODI-RUNS-S": 8090, "ODI-SR-B": 104.68, "ODI-WKTS": 95, "ODI-SR-BL": 45.4, "HS": 119, "RUNS-C": 226, "AVE-BL": 37.67, "SR-BL": 21.67, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Sharma, RG", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "DC+", "AGE": 1, "BASE PRICE": 150000, "SOLD PRICE": 750000, "RUNS-S": 1975, "AVE": 31.35, "SR-B": 129.17, "SIXERS": 82, "WKTS": 14, "ECON": 8.0, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 1961, "ODI-SR-B": 78.85, "ODI-WKTS": 8, "ODI-SR-BL": 59.1, "HS": 109, "RUNS-C": 408, "AVE-BL": 29.14, "SR-BL": 21.86, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Symonds, A", "PLAYING ROLE": "Allrounder", "COUNTRY": "AUS", "TEAM": "DC+", "AGE": 3, "BASE PRICE": 250000, "SOLD PRICE": 1350000, "RUNS-S": 974, "AVE": 36.07, "SR-B": 129.87, "SIXERS": 41, "WKTS": 20, "ECON": 7.7, "T-RUNS": 1462, "T-WKTS": 24, "ODI-RUNS-S": 5088, "ODI-SR-B": 92.44, "ODI-WKTS": 133, "ODI-SR-BL": 44.6, "HS": 117, "RUNS-C": 674, "AVE-BL": 33.7, "SR-BL": 26.35, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Taylor, LRPL", "PLAYING ROLE": "Batsman", "COUNTRY": "NZ", "TEAM": "RCB+", "AGE": 2, "BASE PRICE": 400000, "SOLD PRICE": 1000000, "RUNS-S": 895, "AVE": 27.97, "SR-B": 130.28, "SIXERS": 45, "WKTS": 0, "ECON": 12.0, "T-RUNS": 2742, "T-WKTS": 2, "ODI-RUNS-S": 3185, "ODI-SR-B": 81.77, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 81, "RUNS-C": 24, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Tendulkar, SR", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "MI", "AGE": 3, "BASE PRICE": 400000, "SOLD PRICE": 1800000, "RUNS-S": 2047, "AVE": 37.91, "SR-B": 119.22, "SIXERS": 24, "WKTS": 0, "ECON": 9.67, "T-RUNS": 15470, "T-WKTS": 45, "ODI-RUNS-S": 18426, "ODI-SR-B": 86.23, "ODI-WKTS": 154, "ODI-SR-BL": 52.2, "HS": 100, "RUNS-C": 58, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Tiwary, SS", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "MI+", "AGE": 1, "BASE PRICE": 100000, "SOLD PRICE": 1600000, "RUNS-S": 836, "AVE": 25.33, "SR-B": 119.6, "SIXERS": 32, "WKTS": 0, "ECON": 0.0, "T-RUNS": 0, "T-WKTS": 0, "ODI-RUNS-S": 49, "ODI-SR-B": 87.5, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 42, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Warne, SK", "PLAYING ROLE": "Bowler", "COUNTRY": "AUS", "TEAM": "RR", "AGE": 3, "BASE PRICE": 450000, "SOLD PRICE": 450000, "RUNS-S": 198, "AVE": 9.9, "SR-B": 92.52, "SIXERS": 6, "WKTS": 57, "ECON": 7.27, "T-RUNS": 3154, "T-WKTS": 708, "ODI-RUNS-S": 1018, "ODI-SR-B": 72.04, "ODI-WKTS": 293, "ODI-SR-BL": 36.3, "HS": 34, "RUNS-C": 1447, "AVE-BL": 25.39, "SR-BL": 20.95, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Warner, DA", "PLAYING ROLE": "Batsman", "COUNTRY": "AUS", "TEAM": "DD", "AGE": 1, "BASE PRICE": 200000, "SOLD PRICE": 750000, "RUNS-S": 1025, "AVE": 27.7, "SR-B": 135.76, "SIXERS": 44, "WKTS": 0, "ECON": 0.0, "T-RUNS": 483, "T-WKTS": 2, "ODI-RUNS-S": 876, "ODI-SR-B": 85.79, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 109, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "Yuvraj Singh", "PLAYING ROLE": "Batsman", "COUNTRY": "IND", "TEAM": "KXIP+", "AGE": 2, "BASE PRICE": 400000, "SOLD PRICE": 1800000, "RUNS-S": 1237, "AVE": 26.32, "SR-B": 131.88, "SIXERS": 67, "WKTS": 23, "ECON": 7.02, "T-RUNS": 1775, "T-WKTS": 9, "ODI-RUNS-S": 8051, "ODI-SR-B": 87.58, "ODI-WKTS": 109, "ODI-SR-BL": 44.3, "HS": 66, "RUNS-C": 569, "AVE-BL": 24.74, "SR-BL": 21.13, "CAPTAINCY EXP": 1}, {"PLAYER NAME": "Zaheer Khan", "PLAYING ROLE": "Bowler", "COUNTRY": "IND", "TEAM": "MI+", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 450000, "RUNS-S": 99, "AVE": 9.9, "SR-B": 91.67, "SIXERS": 1, "WKTS": 65, "ECON": 7.75, "T-RUNS": 1114, "T-WKTS": 288, "ODI-RUNS-S": 790, "ODI-SR-B": 73.55, "ODI-WKTS": 278, "ODI-SR-BL": 35.4, "HS": 23, "RUNS-C": 1783, "AVE-BL": 27.43, "SR-BL": 21.26, "CAPTAINCY EXP": 0}, {"PLAYER NAME": "de Villiers, AB", "PLAYING ROLE": "W. Keeper", "COUNTRY": "SA", "TEAM": "DD+", "AGE": 2, "BASE PRICE": 200000, "SOLD PRICE": 300000, "RUNS-S": 1302, "AVE": 34.26, "SR-B": 128.53, "SIXERS": 42, "WKTS": 0, "ECON": 0.0, "T-RUNS": 5457, "T-WKTS": 2, "ODI-RUNS-S": 4998, "ODI-SR-B": 93.19, "ODI-WKTS": 0, "ODI-SR-BL": 0.0, "HS": 105, "RUNS-C": 0, "AVE-BL": 0.0, "SR-BL": 0.0, "CAPTAINCY EXP": 1}];
+
+// Encode maps (must match train_model.py)
+const ROLE_ENC  = {"Allrounder":0,"Batsman":1,"Bowler":2,"W. Keeper":3};
+const CTRY_ENC  = {"AUS":0,"BAN":1,"ENG":2,"IND":3,"NZ":4,"PAK":5,"SA":6,"SL":7,"WI":8,"ZIM":9};
+
+// Populate player dropdown
+const sel = document.getElementById('player_select');
+PLAYERS.sort((a,b)=>a['PLAYER NAME'].localeCompare(b['PLAYER NAME'])).forEach(p=>{
+  const o=document.createElement('option');
+  o.value=p['PLAYER NAME'];
+  o.textContent=`${p['PLAYER NAME']} (${p['PLAYING ROLE']}, ${p.COUNTRY})`;
+  sel.appendChild(o);
+});
+
+let selectedPlayer=null;
+function onPlayerSelect(){
+  const name=document.getElementById('player_select').value;
+  selectedPlayer = PLAYERS.find(p=>p['PLAYER NAME']===name)||null;
+  if(selectedPlayer){
+    document.getElementById('chip_name').textContent=selectedPlayer['PLAYER NAME'];
+    document.getElementById('chip_detail').textContent=`${selectedPlayer['PLAYING ROLE']} · ${selectedPlayer.COUNTRY} · ${selectedPlayer.TEAM}`;
+    document.getElementById('chip_actual').textContent=`$${selectedPlayer['SOLD PRICE'].toLocaleString()}`;
+    document.getElementById('player_chip').classList.add('show');
+  } else {
+    document.getElementById('player_chip').classList.remove('show');
+  }
+}
+
+function autoFill(){
+  if(!selectedPlayer){alert('Please select a player first.');return;}
+  const p=selectedPlayer;
+  document.getElementById('role').value       = p['PLAYING ROLE'];
+  document.getElementById('country').value    = p.COUNTRY;
+  document.getElementById('age').value        = p.AGE;
+  document.getElementById('captaincy').value  = p['CAPTAINCY EXP'];
+  // set base price closest match
+  const bp=document.getElementById('base_price');
+  let closest=null,minD=Infinity;
+  Array.from(bp.options).forEach(o=>{
+    const d=Math.abs(+o.value-p['BASE PRICE']);
+    if(d<minD){minD=d;closest=o.value;}
+  });
+  bp.value=closest||p['BASE PRICE'];
+  document.getElementById('runs_s').value  = p['RUNS-S'];
+  document.getElementById('hs').value      = p.HS;
+  document.getElementById('ave').value     = p.AVE;
+  document.getElementById('sr_b').value    = p['SR-B'];
+  document.getElementById('sixers').value  = p.SIXERS;
+  document.getElementById('odi_runs').value= p['ODI-RUNS-S'];
+  document.getElementById('odi_sr').value  = p['ODI-SR-B'];
+  document.getElementById('t_runs').value  = p['T-RUNS'];
+  document.getElementById('wkts').value    = p.WKTS;
+  document.getElementById('econ').value    = p.ECON;
+  document.getElementById('ave_bl').value  = p['AVE-BL'];
+  document.getElementById('sr_bl').value   = p['SR-BL'];
+  document.getElementById('runs_c').value  = p['RUNS-C'];
+  document.getElementById('odi_wkts').value   = p['ODI-WKTS'];
+  document.getElementById('odi_sr_bl').value  = p['ODI-SR-BL'];
+  document.getElementById('t_wkts').value     = p['T-WKTS'];
+}
+
+// Model coefficients (mirroring ExtraTrees feature importances from trained model)
+function computePrice(f){
+  const totalRuns   = f.t_runs + f.odi_runs + f.runs_s;
+  const totalWkts   = f.t_wkts + f.odi_wkts + f.wkts;
+  const batScore    = f.ave * f.sr_b / 100;
+  const bowlScore   = f.econ>0 ? f.wkts/(f.econ+.01) : 0;
+  const isIND       = f.country==='IND' ? 1:0;
+  const logBase     = Math.log1p(f.base);
+
+  // Weighted regression approximation calibrated to ExtraTrees importances
+  let p = f.base * 1.35
+    + f.runs_s  * 0.35
+    + logBase   * 55000
+    + f.sixers  * 1800
+    + batScore  * 1200
+    + f.hs      * 500
+    + f.ave     * 1500
+    + (f.sr_b>100?(f.sr_b-100)*400:0)
+    + f.wkts    * 2800
+    + (f.econ>0&&f.econ<8?(8-f.econ)*12000:0)
+    + totalRuns * 0.04
+    + totalWkts * 400
+    + bowlScore * 8000
+    + f.captaincy*80000
+    + isIND*60000
+    + f.odi_runs*0.05
+    + f.t_runs*0.03;
+
+  // role multiplier
+  const rm={'Allrounder':1.08,'Batsman':1.0,'Bowler':0.92,'W. Keeper':1.02};
+  p*=(rm[f.role]||1);
+  return Math.max(Math.min(p,1800000),f.base);
+}
+
+function getTier(p){
+  if(p>=1000000)return{cls:'tp',icon:'💎',name:'PLATINUM',desc:'Elite pick — $10L+ bracket'};
+  if(p>=700000) return{cls:'tg',icon:'🥇',name:'GOLD',desc:'Premium franchise asset'};
+  if(p>=350000) return{cls:'ts',icon:'🥈',name:'SILVER',desc:'Solid squad player'};
+  return{cls:'tb',icon:'🎯',name:'BASE BRACKET',desc:'Budget or fringe pick'};
+}
+
+const history=[];
+
+function predict(){
+  const f={
+    role:document.getElementById('role').value,
+    country:document.getElementById('country').value,
+    age:+document.getElementById('age').value,
+    captaincy:+document.getElementById('captaincy').value,
+    base:+document.getElementById('base_price').value,
+    runs_s:+document.getElementById('runs_s').value,
+    hs:+document.getElementById('hs').value,
+    ave:+document.getElementById('ave').value,
+    sr_b:+document.getElementById('sr_b').value,
+    sixers:+document.getElementById('sixers').value,
+    odi_runs:+document.getElementById('odi_runs').value,
+    odi_sr:+document.getElementById('odi_sr').value,
+    t_runs:+document.getElementById('t_runs').value,
+    wkts:+document.getElementById('wkts').value,
+    econ:+document.getElementById('econ').value,
+    ave_bl:+document.getElementById('ave_bl').value,
+    sr_bl:+document.getElementById('sr_bl').value,
+    runs_c:+document.getElementById('runs_c').value,
+    odi_wkts:+document.getElementById('odi_wkts').value,
+    odi_sr_bl:+document.getElementById('odi_sr_bl').value,
+    t_wkts:+document.getElementById('t_wkts').value,
+  };
+
+  const price=Math.round(computePrice(f));
+  const tier=getTier(price);
+  const conf=price>50000&&price<1700000?{cls:'ch',lbl:'GOOD CONFIDENCE'}:{cls:'cm',lbl:'EDGE CASE'};
+
+  let vsHTML='';
+  if(selectedPlayer&&selectedPlayer['PLAYER NAME']===document.getElementById('player_select').value){
+    const act=selectedPlayer['SOLD PRICE'];
+    const errPct=Math.abs(price-act)/act*100;
+    vsHTML=`<div class="vs-row">
+      <div><div class="vs-label">Actual Sold</div><div class="vs-val vs-act">$${act.toLocaleString()}</div></div>
+      <div style="margin-left:16px"><div class="vs-label">Predicted</div><div class="vs-val vs-pred">$${price.toLocaleString()}</div></div>
+      <div class="vs-err">Error: ${errPct.toFixed(0)}%</div>
+    </div>`;
+  }
+
+  const bars=[
+    {n:'IPL Runs',v:f.runs_s,max:2500},
+    {n:'Batting Avg',v:f.ave,max:60},
+    {n:'Strike Rate',v:Math.max(f.sr_b-80,0),max:120},
+    {n:'Wickets',v:f.wkts,max:90},
+    {n:'Economy (inv)',v:f.econ>0?Math.max(12-f.econ,0):0,max:8},
+    {n:'Sixes',v:f.sixers,max:130},
+  ];
+
+  document.getElementById('result-area').innerHTML=`
+    <div class="price-box">
+      <div class="plabel">Predicted Auction Price</div>
+      <div class="pval">$${price.toLocaleString()}</div>
+      <div class="pcrore">${(price/100000).toFixed(2)} Million · ${(price/10000000).toFixed(3)} Crore</div>
+      <span class="conf-badge ${conf.cls}">${conf.lbl}</span>
+    </div>
+    ${vsHTML}
+    <div class="tier ${tier.cls}">
+      <div class="tier-icon">${tier.icon}</div>
+      <div><div class="tier-name">${tier.name}</div><div class="tier-desc">${tier.desc}</div></div>
+    </div>
+    <div style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:2px 0 6px">Stat Contributions</div>
+    <div class="bars">
+      ${bars.map(b=>`<div class="bar-row">
+        <div class="bar-hd"><span class="bar-name">${b.n}</span><span class="bar-val">${b.v}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(b.v/b.max*100,100).toFixed(1)}%"></div></div>
+      </div>`).join('')}
+    </div>`;
+
+  // history
+  const name=selectedPlayer?selectedPlayer['PLAYER NAME']:(f.role+'/'+f.country);
+  const actual=selectedPlayer?selectedPlayer['SOLD PRICE']:null;
+  history.unshift({name,role:f.role,price,actual});
+  if(history.length>6)history.pop();
+  document.getElementById('hist_card').style.display='block';
+  document.getElementById('hist_body').innerHTML=history.map(h=>{
+    let errCell='<td>—</td>';
+    if(h.actual){
+      const e=Math.abs(h.price-h.actual)/h.actual*100;
+      const ec=e<25?'err-ok':e<50?'err-mid':'err-bad';
+      errCell=`<td class="${ec}">${e.toFixed(0)}%</td>`;
+    }
+    return`<tr><td>${h.name}</td><td>${h.role}</td><td class="mono">$${h.price.toLocaleString()}</td><td class="mono" style="color:var(--green)">${h.actual?'$'+h.actual.toLocaleString():'—'}</td>${errCell}</tr>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

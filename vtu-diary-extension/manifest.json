@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "VTU Diary Auto Fill",
+  "version": "1.0",
+  "description": "Auto fill internship diary entries",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://vtu.internyet.in/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

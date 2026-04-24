@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sports Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI';
+            background: linear-gradient(135deg, #141e30, #243b55);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            padding: 30px;
+            border-radius: 15px;
+            width: 380px;
+            backdrop-filter: blur(12px);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .odds-buttons button {
+            margin: 5px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #00c6ff;
+            color: white;
+        }
+
+        button.main {
+            width: 100%;
+            padding: 12px;
+            background: #00c6ff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0072ff;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>⚽ Sports Predictor</h2>
+
+    <!-- TEAM DROPDOWNS -->
+    <label>Home Team</label>
+    <select id="home_team"></select>
+
+    <label>Away Team</label>
+    <select id="away_team"></select>
+
+    <!-- ODDS INPUT -->
+    <label>Home Odds</label>
+    <input id="home_odds" type="number" step="0.01">
+
+    <div class="odds-buttons">
+        <b>Quick Picks:</b><br>
+        <button onclick="setOdds('home_odds',1.5)">1.5</button>
+        <button onclick="setOdds('home_odds',2.0)">2.0</button>
+        <button onclick="setOdds('home_odds',3.0)">3.0</button>
+    </div>
+
+    <label>Away Odds</label>
+    <input id="away_odds" type="number" step="0.01">
+
+    <div class="odds-buttons">
+        <button onclick="setOdds('away_odds',1.5)">1.5</button>
+        <button onclick="setOdds('away_odds',2.0)">2.0</button>
+        <button onclick="setOdds('away_odds',3.0)">3.0</button>
+    </div>
+
+    <label>Draw Odds</label>
+    <input id="draw_odds" type="number" step="0.01">
+
+    <div class="odds-buttons">
+        <button onclick="setOdds('draw_odds',2.5)">2.5</button>
+        <button onclick="setOdds('draw_odds',3.0)">3.0</button>
+        <button onclick="setOdds('draw_odds',4.0)">4.0</button>
+    </div>
+
+    <button class="main" onclick="predict()">Predict</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+/* ============================
+   LOAD TEAMS (STATIC LIST)
+   ============================ */
+async function loadTeams() {
+    const res = await fetch("http://127.0.0.1:5000/teams");
+    const data = await res.json();
+
+    const home = document.getElementById("home_team");
+    const away = document.getElementById("away_team");
+
+    data.teams.forEach(team => {
+        home.add(new Option(team, team));
+        away.add(new Option(team, team));
+    });
+}
+
+loadTeams();
+
+/* ============================
+   QUICK ODDS SETTER
+   ============================ */
+function setOdds(id, value) {
+    document.getElementById(id).value = value;
+}
+
+/* ============================
+   PREDICT
+   ============================ */
+async function predict() {
+    const data = {
+        home_team: document.getElementById("home_team").value,
+        away_team: document.getElementById("away_team").value,
+        home_odds: parseFloat(document.getElementById("home_odds").value),
+        away_odds: parseFloat(document.getElementById("away_odds").value),
+        draw_odds: parseFloat(document.getElementById("draw_odds").value)
+    };
+
+    const res = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    document.getElementById("result").innerHTML = `
+        🏆 <b>${result.winner}</b><br>
+        📊 Confidence: ${result.confidence}<br>
+        💰 Value Score: ${result.value_score}
+    `;
+}
+</script>
+
+</body>
+</html>
